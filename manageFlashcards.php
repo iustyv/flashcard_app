@@ -7,7 +7,9 @@ if(!isset($_SESSION['user_id']))
     exit();
 }
 
-//łącze z bazą danych
+include('autoryzacja.php');
+$conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection error: '.mysqli_connect_error());
+
 //sprawdzić czy w został przekazany deck_id w GET w pliku manageDecks.php
 
 if(isset($_GET['add']) && $_GET['add']=='e') unset($_GET['add']);
