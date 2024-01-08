@@ -8,6 +8,7 @@ if(!isset($_SESSION['user_id']))
 }
 
 //test2
+//test3
 //łącze z bazą danych
 //sprawdzić czy w został przekazany deck_id w GET w pliku manageDecks.php
 
