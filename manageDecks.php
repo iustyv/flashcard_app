@@ -5,6 +5,7 @@ if(!isset($_SESSION['user_id']))
     header('Location: index.php');
     exit();
 }
+unset($_SESSION['deck_id']);
 
 include('autoryzacja.php');
 $conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection error: '.mysqli_connect_error());

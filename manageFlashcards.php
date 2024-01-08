@@ -6,22 +6,27 @@ if(!isset($_SESSION['user_id']))
     header('Location: index.php');
     exit();
 }
+if(!isset($_GET['manage']))
+{
+    header('Location: welcome.php'); //ewentualnie manageDecks.php
+    exit();
+}
+else if(!isset($_SESSION['deck_id']))
+    $_SESSION['deck_id']=$_GET['manage'];
 
 include('autoryzacja.php');
 $conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection error: '.mysqli_connect_error());
 
-//sprawdzić czy w został przekazany deck_id w GET w pliku manageDecks.php
-
-if(isset($_GET['add']) && $_GET['add']=='e') unset($_GET['add']);
+if(isset($_GET['add']) && $_GET['add']=='e') unset($_GET['add']); //czy to na pewno potrzebne
 
 if(isset($_GET['add']) && $_GET['add']=='c' && isset($_POST['front']))
 {
     //dodać if, jeżeli uzytkownik nie wpisał nic w polu back
-    mysqli_query($conn, "INSERT INTO flashcards(front, back, user_id, deck_id) VALUES ('".$_POST['front']."', '".$_POST['back']."', '".$_SESSION['user_id']."', '".."');"); //przekazać deck_id
+    mysqli_query($conn, "INSERT INTO flashcards(front, back, user_id, deck_id) VALUES ('".$_POST['front']."', '".$_POST['back']."', '".$_SESSION['user_id']."', '".$_SESSION['deck_id']."');");
     $_GET['add']='a';
 }
 
-$result=mysqli_query($conn, "SELECT * FROM flashcards WHERE deck_id='".."';") //przekazać deck_id;
+$result=mysqli_query($conn, "SELECT * FROM flashcards WHERE deck_id='".$_SESSION['deck_id']."';");
 
 ?>
 <!DOCTYPE html>
@@ -43,11 +48,11 @@ $result=mysqli_query($conn, "SELECT * FROM flashcards WHERE deck_id='".."';") //
         <form method="POST" action="manageFlashcards.php?add=c">
         <div class="formDiv">
             <label for="front">Front</label>
-            <textarea id="front" name="front" required><!--dodać kolumny i wiersze-->
+            <textarea id="front" name="front" rows="8" cols="75" required><!--dodać kolumny i wiersze-->
         </div>
         <div class="formDiv">
             <label for="back">
-            <textarea id="back" name="back">
+            <textarea id="back" name="back" rows="8" cols="75">
         </div>
         <input type="submit" value="Add">
         <input type="submit" value="Cancel" formaction="manageFlashcards.php?add=e">
@@ -56,7 +61,7 @@ $result=mysqli_query($conn, "SELECT * FROM flashcards WHERE deck_id='".."';") //
     }
     else 
     {
-        echo '<form method="POST" action="manageFlashcards?delete=c.php">';
+        echo '<form method="POST" action="manageFlashcards.php?delete=c">';
         echo '<table>'
         $i=0;
         while($row=mysqli_fetch_array($result))
