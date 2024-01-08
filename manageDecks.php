@@ -15,10 +15,11 @@ if(isset($_GET['add']) && $_GET['add']=='c' && isset($_POST['deck_name']))
 if(isset($_GET['rename']) && $_GET['rename']=='c' && isset($_POST['deck_name']))
     mysqli_query($conn, "UPDATE decks SET deck_name='".$_POST['deck_name']."' WHERE deck_id='".$_POST['deck_id']."';");
 
-if(isset($_GET['delete']) && $_GET['delete']=='c')
+if(isset($_GET['delete']) && $_GET['delete']=='c') //czy powinna być transkacja
+{
+    mysqli_query($conn, "DELETE FROM flashcards WHERE deck_id='".$_POST['deck_id']."';");    
     mysqli_query($conn, "DELETE FROM decks WHERE deck_id='".$_POST['deck_id']."';");
-
-//dodać transakcję do usunięcia wszystkich fiszek z decku i wiadomość ostrzegającą
+}
 
 $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['user_id']."';");
 ?>
@@ -59,12 +60,12 @@ $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['use
                 echo '<input type="hidden" name="deck_id" value="'.$_GET['delete'].'">';
                 echo '<td><input type="submit" value="Confirm">';
                 echo '<input type="submit" value="Cancel" formaction="manageDecks.php?delete=e">';
-                echo '</td></form>';
+                echo '</td></form></tr>';
+                echo '<tr><td>! All flashcards from the deck will also be deleted.</td></tr>';
             }
             else 
-            	echo '<td><a href="manageDecks.php?delete='.$row['deck_id'].'">Delete</a></td>';
+            	echo '<td><a href="manageDecks.php?delete='.$row['deck_id'].'">Delete</a></td></tr>';
 
-            echo '</tr>';
         }
 
         /*
