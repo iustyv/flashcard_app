@@ -6,13 +6,32 @@ if(!isset($_SESSION['user_id']))
     header('Location: index.php');
     exit();
 }
-if(!isset($_GET['manage']) && !isset($_SESSION['deck_id']))
+if(!isset($_GET['manage']) && !isset($_SESSION['deck_id'])) 
 {
     header('Location: manageDecks.php');
     exit();
 }
-else if(!isset($_SESSION['deck_id']))
-    $_SESSION['deck_id']=$_GET['manage'];
+else if(!isset($_SESSION['deck_id'])) 
+{
+    $temp=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['user_id']."';");
+    $access=false;
+    while($row = mysqli_fetch_array($temp)) 
+    {
+        if($row['deck_id']==$_GET['manage'])
+        {
+            $access=true;
+            $_SESSION['deck_id']=$_GET['manage'];
+            break;
+        }
+    }
+    if(!$access)
+    {
+        header('Location: manageDecks.php');
+        exit();
+    }
+    mysqli_free_result($temp);
+}
+    
 
 include('autoryzacja.php');
 $conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection error: '.mysqli_connect_error());
@@ -33,11 +52,32 @@ if(isset($_GET['add']) && $_GET['add']=='c' && isset($_POST['front']))
         mysqli_query($conn, "ROLLBACK;");
     else
         mysqli_query($conn, "COMMIT;");
-    //zwiększenie countera fiszek w decks
     //czy do countera powinny się liczyć także fiszki z archiwum?
 }
+
+//ogarnąć, gdzie powinno to być względem transakcji
 $deck_result=mysqli_query($conn, "SELECT * FROM decks WHERE deck_id='".$_SESSION['deck_id']."'");
 $deck_info=mysqli_fetch_array($deck_result);
+
+if(isset($_GET['delete']) && $_GET['delete']=='c')
+{
+    for($i=0; $i<$deck_info['flashcard_count']; $i++)
+    {
+        if(isset($_POST['flash'.$i]))
+        {
+            $queryError= 0;
+            mysqli_query($conn,"BEGIN;");
+            mysqli_query($conn,"DELETE FROM flashcards WHERE flashcard_id='".$_POST['flash'.$i]."';");
+                if(mysqli_affected_rows($conn)!=1) $queryError++;
+            mysqli_query($conn,"UPDATE decks SET flashcard_count=flashcard_count-1 WHERE deck_id='".$_SESSION['deck_id']."';");
+                if(mysqli_affected_rows($conn)!=1) $queryError++;
+            if($queryError)
+                mysqli_query($conn, "ROLLBACK;");
+            else
+                mysqli_query($conn, "COMMIT;");
+        }
+    }
+}
 
 $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE deck_id='".$_SESSION['deck_id']."';"); //nazwa tabeli zalezna od opcji
 
@@ -100,10 +140,10 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
         while($row=mysqli_fetch_array($flashcards_result))
         {
             echo '<tr>';
-            echo '<td><input type=checkbox name="flash'.$i.'" id="flash'.$i.'" value="'.$row['flashcard_id'].'"></td>';
+            echo '<td><input type="checkbox" id="flash'.$i.'" name="flash'.$i.'" value="'.$row['flashcard_id'].'"></td>';
             echo '<label for="flash'.$i.'">';
             echo '<td>'.$row['front'].'</td>';
-            echo '<td>'.$row['back'].'</td>';
+            echo '<td>'.$row['back'].'</td></label>';
             echo '</tr>';
             $i++;
         }
