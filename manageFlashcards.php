@@ -48,7 +48,7 @@ $result=mysqli_query($conn, "SELECT * FROM flashcards WHERE deck_id='".$_SESSION
         <form method="POST" action="manageFlashcards.php?add=c">
         <div class="formDiv">
             <label for="front">Front</label>
-            <textarea id="front" name="front" rows="8" cols="75" required><!--dodać kolumny i wiersze-->
+            <textarea id="front" name="front" rows="8" cols="75" required>
         </div>
         <div class="formDiv">
             <label for="back">
@@ -62,12 +62,12 @@ $result=mysqli_query($conn, "SELECT * FROM flashcards WHERE deck_id='".$_SESSION
     else 
     {
         echo '<form method="POST" action="manageFlashcards.php?delete=c">';
-        echo '<table>'
+        echo '<table>';
         $i=0;
         while($row=mysqli_fetch_array($result))
         {
-            echo '<tr>'
-            echo '<td><input type=checkbox name="flash'.$i.'" id="flash'.$i.'" value="'$row['flashcard_id']'"></td>';
+            echo '<tr>';
+            echo '<td><input type=checkbox name="flash'.$i.'" id="flash'.$i.'" value="'.$row['flashcard_id'].'"></td>';
             echo '<label for="flash'.$i.'">';
             echo '<td>'.$row['front'].'</td>';
             echo '<td>'.$row['back'].'</td>';
