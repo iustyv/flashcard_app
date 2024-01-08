@@ -6,9 +6,9 @@ if(!isset($_SESSION['user_id']))
     header('Location: index.php');
     exit();
 }
-if(!isset($_GET['manage']))
+if(!isset($_GET['manage']) && !isset($_SESSION['deck_id']))
 {
-    header('Location: welcome.php'); //ewentualnie manageDecks.php
+    header('Location: manageDecks.php');
     exit();
 }
 else if(!isset($_SESSION['deck_id']))
@@ -21,23 +21,56 @@ if(isset($_GET['add']) && $_GET['add']=='e') unset($_GET['add']); //czy to na pe
 
 if(isset($_GET['add']) && $_GET['add']=='c' && isset($_POST['front']))
 {
-    //dodać if, jeżeli uzytkownik nie wpisał nic w polu back
-    mysqli_query($conn, "INSERT INTO flashcards(front, back, user_id, deck_id) VALUES ('".$_POST['front']."', '".$_POST['back']."', '".$_SESSION['user_id']."', '".$_SESSION['deck_id']."');");
+    $queryError=0;
+    //transakcja
+    mysqli_query($conn, "BEGIN;");
+    mysqli_query($conn, "INSERT INTO flashcards_active(front, back, user_id, deck_id) VALUES ('".$_POST['front']."', '".$_POST['back']."', '".$_SESSION['user_id']."', '".$_SESSION['deck_id']."');");
     $_GET['add']='a';
+        if(mysqli_affected_rows($conn)!=1) $queryError++;
+    mysqli_query($conn, "UPDATE decks SET flashcard_count=flashcard_count+1 WHERE deck_id='".$_SESSION['deck_id']."';");
+        if(mysqli_affected_rows($conn)!=1) $queryError++;
+    if($queryError)
+        mysqli_query($conn, "ROLLBACK;");
+    else
+        mysqli_query($conn, "COMMIT;");
+    //zwiększenie countera fiszek w decks
+    //czy do countera powinny się liczyć także fiszki z archiwum?
 }
+$deck_result=mysqli_query($conn, "SELECT * FROM decks WHERE deck_id='".$_SESSION['deck_id']."'");
+$deck_info=mysqli_fetch_array($deck_result);
 
-$result=mysqli_query($conn, "SELECT * FROM flashcards WHERE deck_id='".$_SESSION['deck_id']."';");
+$flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE deck_id='".$_SESSION['deck_id']."';"); //nazwa tabeli zalezna od opcji
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            display: flex;
+        }
+
+        .formDiv {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .formDiv input {
+            width:200px;
+        }
+    </style>
 </head>
 <body>
 <aside>
     <button><a href="manageDecks.php">Go back</a></button>
-    <h1><?php echo $_GET['deck_id']?></h1>
-    <button><a href="manageFlashcards.php?add=a">New flashcard</a></button>
+    <h1><?php echo $deck_info['deck_name']?></h1>
+    <?php
+    if(isset($_GET['add']) && $_GET['add']=='a')
+        echo '<button><a href="manageFlashcards.php?add=e">Manage flashcards</a></button>';
+    else 
+        echo '<button><a href="manageFlashcards.php?add=a">New flashcard</a></button>';
+    ?>
 </aside>
 <main>
     <?php 
@@ -48,11 +81,11 @@ $result=mysqli_query($conn, "SELECT * FROM flashcards WHERE deck_id='".$_SESSION
         <form method="POST" action="manageFlashcards.php?add=c">
         <div class="formDiv">
             <label for="front">Front</label>
-            <textarea id="front" name="front" rows="8" cols="75" required>
+            <textarea id="front" name="front" rows="8" cols="75" required></textarea>
         </div>
         <div class="formDiv">
-            <label for="back">
-            <textarea id="back" name="back" rows="8" cols="75">
+            <label for="back">Back</label>
+            <textarea id="back" name="back" rows="8" cols="75"></textarea>
         </div>
         <input type="submit" value="Add">
         <input type="submit" value="Cancel" formaction="manageFlashcards.php?add=e">
@@ -64,7 +97,7 @@ $result=mysqli_query($conn, "SELECT * FROM flashcards WHERE deck_id='".$_SESSION
         echo '<form method="POST" action="manageFlashcards.php?delete=c">';
         echo '<table>';
         $i=0;
-        while($row=mysqli_fetch_array($result))
+        while($row=mysqli_fetch_array($flashcards_result))
         {
             echo '<tr>';
             echo '<td><input type=checkbox name="flash'.$i.'" id="flash'.$i.'" value="'.$row['flashcard_id'].'"></td>';

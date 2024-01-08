@@ -13,24 +13,36 @@ $conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection erro
 $result=mysqli_query($conn, "SELECT * FROM user_data WHERE user_id='".$_SESSION['user_id']."';");
 $row=mysqli_fetch_array($result);
 
-if(isset($_POST['username']) && $_POST['username']!=$row['username'])
-{//sprawdzic czy nowy username nie wystepuje juz w bazie
-    mysqli_query($conn, "UPDATE user_data SET username='".$_POST['username']."' WHERE user_id='".$_SESSION['user_id']."';");
-    $row['username']=$_POST['username'];
-}    
-
-if(isset($_POST['passwordOld']) && $_POST['passwordOld']==$row['password'])
+if(isset($_GET['user']) && $_GET['user']=='e') unset($_POST['username']); //powoduje usunięcie wiadomości o istniejącym nicku i przywrócenie defaultowej value
+else if(isset($_POST['username']) && $_POST['username']!=$row['username'])
 {
-    if($_POST['passwordNew']==$_POST['passwordRepeat'])
+    $temp=mysqli_query($conn, "SELECT * FROM user_data WHERE username=CAST('".$_POST['username']."' AS BINARY);");
+    if(!mysqli_num_rows($temp))
     {
-        mysqli_query($conn, "UPDATE user_data SET password='".$_POST['passwordNew']."' WHERE user_id='".$_SESSION['user_id']."';");
-        $row['password']=$_POST['passwordNew'];
-    }    
+      mysqli_query($conn, "UPDATE user_data SET username=CAST('".$_POST['username']."' AS BINARY) WHERE user_id='".$_SESSION['user_id']."';");
+      $row['username']=$_POST['username'];
+    }
     else 
-        $passError='Please check your new passwords one more time.';
+      $userError='Username already exists.';
+    mysqli_free_result($temp);
+}   
+
+if(isset($_POST['passwordOld']))
+{
+    if($_POST['passwordOld']==$row['password'])
+    {
+        if($_POST['passwordNew']==$_POST['passwordRepeat'])
+        {
+            mysqli_query($conn, "UPDATE user_data SET password='".$_POST['passwordNew']."' WHERE user_id='".$_SESSION['user_id']."';");
+            $row['password']=$_POST['passwordNew'];
+        }    
+        else 
+            $passError='Please check your new passwords one more time.';
+    }
+    else 
+        $passError='The password does not match your current password.';
 }
-else 
-    $passError='The password does not match your current password.'
+
 ?>
 
 <!DOCTYPE html>
@@ -54,11 +66,14 @@ else
     <form action="settings.php" method="POST">
         <div class="formDiv">
             <label for="username">Username</label>
-            <input type="text" id="username" name="username" value="<?php if(isset($row['username'])) echo $row['username']?>">
+            <input type="text" id="username" name="username" value="<?php if(isset($_POST['username'])) echo $_POST['username']; else if(isset($row['username'])) echo $row['username']?>">
         </div>
         <input type="submit" value="Confirm">
         <input type="submit" value="Cancel" formaction="settings.php">
     </form>
+    <?php
+    if(isset($userError)) echo '<span>'.$userError.'</span>';
+    ?>
 
     <br><br>
 
@@ -81,6 +96,6 @@ else
     <?php 
         if(isset($passError)) echo '<span>'.$passError.'</span>';
     ?>
-    <a href="welcome.php">Go back</a>
+    <a href="welcome.php"><button>Go back</button></a>
 </body>
 </html>

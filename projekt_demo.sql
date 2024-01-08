@@ -14,6 +14,7 @@ CREATE TABLE user_data(
 CREATE TABLE decks(
     deck_id int AUTO_INCREMENT PRIMARY KEY,
     deck_name varchar(50) NOT NULL,
+    flashcard_count int DEFAULT 0,
     user_id int NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user_data(user_id)
 );
