@@ -50,7 +50,7 @@ $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['use
             }
             else 
             {
-                echo '<td>'.$row['deck_name'].'</td>';
+                echo '<td><a href="manageFlashcards.php?manage='.$row['deck_id'].'">'.$row['deck_name'].'</a></td>';
                 echo '<td><a href="manageDecks.php?rename='.$row['deck_id'].'">Rename</a></td>';
             }
 
@@ -88,10 +88,10 @@ $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['use
             HTML;
         }
         else 
-            echo '<tr><td><a href="manageDecks.php?add=a">Add new deck</a></td></tr>';
+            echo '<tr><td><a href="manageDecks.php?add=a"><button>Add new deck</button></a></td></tr>';
 
         ?> 
     </table>
-    <a href="welcome.php">Go back</a>
+    <a href="welcome.php"><button>Go back</button></a>
 </body>
 </html>
