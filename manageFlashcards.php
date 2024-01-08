@@ -1,6 +1,8 @@
 <?php
-
 session_start();
+include('autoryzacja.php');
+$conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection error: '.mysqli_connect_error());
+
 if(!isset($_SESSION['user_id']))
 {
     header('Location: index.php');
@@ -31,10 +33,6 @@ else if(!isset($_SESSION['deck_id']))
     }
     mysqli_free_result($temp);
 }
-    
-
-include('autoryzacja.php');
-$conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection error: '.mysqli_connect_error());
 
 if(isset($_GET['add']) && $_GET['add']=='e') unset($_GET['add']); //czy to na pewno potrzebne
 
@@ -48,10 +46,12 @@ if(isset($_GET['add']) && $_GET['add']=='c' && isset($_POST['front']))
         if(mysqli_affected_rows($conn)!=1) $queryError++;
     mysqli_query($conn, "UPDATE decks SET flashcard_count=flashcard_count+1 WHERE deck_id='".$_SESSION['deck_id']."';");
         if(mysqli_affected_rows($conn)!=1) $queryError++;
-    if($queryError)
+    if($queryError) //wiadomość o niepowodzeniu
         mysqli_query($conn, "ROLLBACK;");
     else
         mysqli_query($conn, "COMMIT;");
+
+    $_GET['add']='a';
     //czy do countera powinny się liczyć także fiszki z archiwum?
 }
 
@@ -67,7 +67,7 @@ if(isset($_GET['delete']) && $_GET['delete']=='c')
         {
             $queryError= 0;
             mysqli_query($conn,"BEGIN;");
-            mysqli_query($conn,"DELETE FROM flashcards WHERE flashcard_id='".$_POST['flash'.$i]."';");
+            mysqli_query($conn,"DELETE FROM flashcards_active WHERE flashcard_id='".$_POST['flash'.$i]."';");
                 if(mysqli_affected_rows($conn)!=1) $queryError++;
             mysqli_query($conn,"UPDATE decks SET flashcard_count=flashcard_count-1 WHERE deck_id='".$_SESSION['deck_id']."';");
                 if(mysqli_affected_rows($conn)!=1) $queryError++;
@@ -141,9 +141,8 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
         {
             echo '<tr>';
             echo '<td><input type="checkbox" id="flash'.$i.'" name="flash'.$i.'" value="'.$row['flashcard_id'].'"></td>';
-            echo '<label for="flash'.$i.'">';
-            echo '<td>'.$row['front'].'</td>';
-            echo '<td>'.$row['back'].'</td></label>';
+            echo '<td><label for="flash'.$i.'">'.$row['front'].'</label></td>';
+            echo '<td><label for="flash'.$i.'">'.$row['back'].'</label></td>';
             echo '</tr>';
             $i++;
         }

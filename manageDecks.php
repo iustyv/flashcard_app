@@ -18,8 +18,19 @@ if(isset($_GET['rename']) && $_GET['rename']=='c' && isset($_POST['deck_name']))
 
 if(isset($_GET['delete']) && $_GET['delete']=='c') //czy powinna być transkacja
 {
-    mysqli_query($conn, "DELETE FROM flashcards WHERE deck_id='".$_POST['deck_id']."';");    
+    $queryError=0;
+    $temp=mysqli_query($conn, "SELECT * FROM decks WHERE deck_id='".$_POST['deck_id']."';");
+    $row=mysqli_fetch_array($temp);
+    mysqli_query($conn, "BEGIN;");
+    mysqli_query($conn, "DELETE FROM flashcards_active WHERE deck_id='".$_POST['deck_id']."';");  
+        if(mysqli_affected_rows($conn)!=$row['flashcard_count']) $queryError; 
     mysqli_query($conn, "DELETE FROM decks WHERE deck_id='".$_POST['deck_id']."';");
+        if(mysqli_affected_rows($conn)!=1) $queryError++;
+    if($queryError) //wiadomość o niepowodzeniu
+        mysqli_query($conn, "ROLLBACK;");
+    else
+        mysqli_query($conn, "COMMIT;");
+    mysqli_free_result($temp);
 }
 
 $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['user_id']."';");
