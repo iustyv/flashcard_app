@@ -7,7 +7,7 @@ if(!isset($_SESSION['user_id']))
     exit();
 }
 
-//test
+//test2
 //łącze z bazą danych
 //sprawdzić czy w został przekazany deck_id w GET w pliku manageDecks.php
 
