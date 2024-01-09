@@ -15,23 +15,15 @@ if(!isset($_GET['manage']) && !isset($_SESSION['deck_id']))
 }
 else if(!isset($_SESSION['deck_id'])) 
 {
-    $temp=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['user_id']."';");
-    $access=false;
-    while($row = mysqli_fetch_array($temp)) 
-    {
-        if($row['deck_id']==$_GET['manage'])
-        {
-            $access=true;
-            $_SESSION['deck_id']=$_GET['manage'];
-            break;
-        }
-    }
-    if(!$access)
+    $temp=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['user_id']."' AND deck_id='".$_GET['manage']."';");
+    if(!mysqli_num_rows($temp))
     {
         header('Location: manageDecks.php');
         exit();
     }
-    mysqli_free_result($temp);
+    else 
+        $_SESSION['deck_id']=$_GET['manage'];
+    mysqli_free_result($temp);    
 }
 
 if(isset($_GET['add']) && $_GET['add']=='e') unset($_GET['add']); //czy to na pewno potrzebne
@@ -113,11 +105,13 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
     ?>
 </aside>
 <main>
+    <a href="manageFlashcards.php?edit=a"><button>Edit</button></a>
+    <a href="manageFlashcards.php?delete=a"><button>Delete</button></a>
     <?php 
     if(isset($_GET['add']) && $_GET['add']=='a')
     {
         ECHO<<<HTML
-        <h1>Add new flashcard</h1>
+        <h2>Add new flashcard</h2>
         <form method="POST" action="manageFlashcards.php?add=c">
         <div class="formDiv">
             <label for="front">Front</label>
@@ -132,7 +126,7 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
         </form>
         HTML;
     }
-    else 
+    else if(isset($_GET['delete']) && $_GET['delete']=='a')
     {
         echo '<form method="POST" action="manageFlashcards.php?delete=c">';
         echo '<table>';
@@ -150,6 +144,18 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
         echo '<input type="submit" value="Delete">';
         echo '<input type="reset" value="Cancel">';
         echo '</form>';
+    }
+    else if(isset($_GET['edit']))
+    {            
+        echo '<table>';
+        while($row=mysqli_fetch_array($flashcards_result))
+        {
+            echo '<tr>';
+            echo '<td><a href="manageFlashcards.php?edit='.$row['flashcard_id'].'">'.$row['front'].'</a></td>';
+            echo '<td><a href="manageFlashcards.php?edit='.$row['flashcard_id'].'">'.$row['back'].'</a></td>';
+            echo '</tr>';
+        }
+        echo '</table>';
     }
     ?>
 </main>
