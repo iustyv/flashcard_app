@@ -150,7 +150,7 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
         echo '<input type="reset" value="Cancel">';
         echo '</form>';
     }
-    else if(isset($_GET['edit']))
+    else
     {            
         echo '<table>';
         while($row=mysqli_fetch_array($flashcards_result))
@@ -161,7 +161,7 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
             echo '</tr>';
         }
         echo '</table>';
-        if(is_numeric($_GET['edit'])){
+        if(isset($_GET['edit']) && is_numeric($_GET['edit'])){
             $temp=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE user_id='".$_SESSION['user_id']."' AND flashcard_id='".$_GET['edit']."';");
             if($row=mysqli_fetch_array($temp))
             {

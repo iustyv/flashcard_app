@@ -34,7 +34,7 @@ $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['use
             echo '<tr>';
 
             echo '<td>'.$row['deck_name'].'</td>';
-            echo '<td><a href="review.php?deckId='.$row['deck_id'].'">Review</a></td>';
+            echo '<td><a href="reviewFlashcards.php?review='.$row['deck_id'].'">Review</a></td>';
 
             echo '</tr>';
         }
