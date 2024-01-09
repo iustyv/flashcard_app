@@ -34,7 +34,6 @@ if(isset($_GET['add']) && $_GET['add']=='c' && isset($_POST['front']))
     //transakcja
     mysqli_query($conn, "BEGIN;");
     mysqli_query($conn, "INSERT INTO flashcards_active(front, back, user_id, deck_id) VALUES ('".$_POST['front']."', '".$_POST['back']."', '".$_SESSION['user_id']."', '".$_SESSION['deck_id']."');");
-    $_GET['add']='a';
         if(mysqli_affected_rows($conn)!=1) $queryError++;
     mysqli_query($conn, "UPDATE decks SET flashcard_count=flashcard_count+1 WHERE deck_id='".$_SESSION['deck_id']."';");
         if(mysqli_affected_rows($conn)!=1) $queryError++;
@@ -69,6 +68,12 @@ if(isset($_GET['delete']) && $_GET['delete']=='c')
                 mysqli_query($conn, "COMMIT;");
         }
     }
+}
+
+if(isset($_GET['edit']) && $_GET['edit']=='c' && isset($_POST['flashcard_id']))//nie wiem, czy sprawdzić flashcard_id czy front
+{
+    mysqli_query($conn, "UPDATE flashcards_active SET front='".$_POST['front']."', back='".$_POST['back']."' WHERE flashcard_id='".$_POST['flashcard_id']."';");
+    $_GET['edit']='a';
 }
 
 $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE deck_id='".$_SESSION['deck_id']."';"); //nazwa tabeli zalezna od opcji
@@ -156,6 +161,23 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
             echo '</tr>';
         }
         echo '</table>';
+        if(is_numeric($_GET['edit'])){
+            $temp=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE user_id='".$_SESSION['user_id']."' AND flashcard_id='".$_GET['edit']."';");
+            if($row=mysqli_fetch_array($temp))
+            {
+                echo '<form method="POST" action="manageFlashcards.php?edit=c">';
+                echo '<input type="hidden" name="flashcard_id" value="'.$_GET['edit'].'">';
+                echo '<div class="formDiv">';
+                echo '<label for id="front">';
+                echo '<textarea id="front" name="front" rows="8" cols="75" required>'.$row['front'].'</textarea></div>';
+                echo '<div class="formDiv">';
+                echo '<label for id="back">';
+                echo '<textarea id="back" name="back" rows="8" cols="75">'.$row['back'].'</textarea></div>';
+                echo '<input type="submit" value="Edit">';
+                echo '<input type="submit" value="Cancel" formaction="manageFlashcards.php?edit=e"></form>';
+            }
+            mysqli_free_result($temp);
+        }
     }
     ?>
 </main>
