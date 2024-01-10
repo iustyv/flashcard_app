@@ -19,7 +19,7 @@ else if(isset($_POST['username']) && $_POST['username']!=$row['username'])
     $temp=mysqli_query($conn, "SELECT * FROM user_data WHERE username=CAST('".$_POST['username']."' AS BINARY);");
     if(!mysqli_num_rows($temp))
     {
-      mysqli_query($conn, "UPDATE user_data SET username=CAST('".$_POST['username']."' AS BINARY) WHERE user_id='".$_SESSION['user_id']."';");
+      mysqli_query($conn, "UPDATE user_data SET username='".$_POST['username']."' WHERE user_id='".$_SESSION['user_id']."';");
       $row['username']=$_POST['username'];
     }
     else 
@@ -33,7 +33,7 @@ if(isset($_POST['passwordOld']))
     {
         if($_POST['passwordNew']==$_POST['passwordRepeat'])
         {
-            mysqli_query($conn, "UPDATE user_data SET password='".$_POST['passwordNew']."' WHERE user_id='".$_SESSION['user_id']."';");
+            mysqli_query($conn, "UPDATE user_data SET password='".$_POST['passwordNew']." WHERE user_id='".$_SESSION['user_id']."';");
             $row['password']=$_POST['passwordNew'];
         }    
         else 

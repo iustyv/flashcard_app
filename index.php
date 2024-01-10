@@ -24,13 +24,12 @@ if(isset($_POST['username']))
 {
     if($_GET['action']=='logIn') //musi być GET, ponieważ ta część jest obsługiwana po przesłaniu formularza - formularz korzysta ze zmiennej $action, żeby ustawić odpowiednie pola, a po wypełnieniu przesyła ją z powrotem GETem
     {
-        $result=mysqli_query($conn, "SELECT * FROM user_data WHERE username REGEXP BINARY '^".$_POST['username']."$' AND password REGEXP BINARY '^".$_POST['password']."$';");
+        $result=mysqli_query($conn, "SELECT * FROM user_data WHERE username=CAST('".$_POST['username']."' AS BINARY) AND password=CAST('".$_POST['password']."' AS BINARY);");
         if(mysqli_num_rows($result)==1)
         {
             $row=mysqli_fetch_array($result);
             $_SESSION['user_id']=$row['user_id'];
             $_SESSION['username']=$row['username'];
-            //$_SESSION['password']=$row['password'];
             header('Location: welcome.php');
         }   
         else 
@@ -38,18 +37,17 @@ if(isset($_POST['username']))
     }
     else 
     {
-        $result=mysqli_query($conn,"SELECT * FROM user_data WHERE username REGEXP BINARY '^".$_POST['username']."$';");
+        $result=mysqli_query($conn,"SELECT * FROM user_data WHERE username=CAST('".$_POST['username']."' AS BINARY);");
         if(!mysqli_num_rows($result))
         {
             if($_POST['password']==$_POST['passwordRepeat'])
             {
-                mysqli_query($conn, "INSERT INTO user_data(username, password) VALUES (CAST('".$_POST['username']."' AS BINARY), CAST('".$_POST['password']."' AS BINARY));");
-                $result=mysqli_query($conn, "SELECT * FROM user_data WHERE username REGEXP BINARY '^".$_POST['username']."$' AND password REGEXP BINARY '^".$_POST['password']."$';");
+                mysqli_query($conn, "INSERT INTO user_data(username, password) VALUES ('".$_POST['username']."', '".$_POST['password']."');");
+                $result=mysqli_query($conn, "SELECT * FROM user_data WHERE username=CAST('".$_POST['username']."' AS BINARY) AND password=CAST('".$_POST['password']."' AS BINARY);");
 
                 $row=mysqli_fetch_array($result);
                 $_SESSION["user_id"]=$row["user_id"];
                 $_SESSION['username']=$row['username'];
-                //$_SESSION['password']=$row['password'];
                 header('Location: welcome.php');
             }
             else
