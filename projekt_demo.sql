@@ -15,14 +15,18 @@ CREATE TABLE decks(
     deck_id int AUTO_INCREMENT PRIMARY KEY,
     deck_name varchar(50) NOT NULL,
     flashcard_count int DEFAULT 0,
+
     user_id int NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user_data(user_id)
 );
 
 CREATE TABLE flashcards_active(
     flashcard_id int AUTO_INCREMENT PRIMARY KEY,
-    front varchar(1000) NOT NULL,
-    back varchar(1000),
+    front varchar(3000) NOT NULL,
+    back varchar(3000),
+    next_revision date,
+    fluency_level tinyint(1) DEFAULT 0,
+    completion boolean DEFAULT 0,
     
     deck_id int NOT NULL,
     user_id int NOT NULL,
@@ -30,5 +34,4 @@ CREATE TABLE flashcards_active(
     FOREIGN KEY (user_id) REFERENCES user_data(user_id)
 );
 
-CREATE TABLE flashcards_archive LIKE flashcards_active;
 

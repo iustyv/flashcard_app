@@ -33,7 +33,7 @@ if(isset($_GET['add']) && $_GET['add']=='c' && isset($_POST['front']))
     $queryError=0;
     //transakcja
     mysqli_query($conn, "BEGIN;");
-    mysqli_query($conn, "INSERT INTO flashcards_active(front, back, user_id, deck_id) VALUES ('".$_POST['front']."', '".$_POST['back']."', '".$_SESSION['user_id']."', '".$_SESSION['deck_id']."');");
+    mysqli_query($conn, "INSERT INTO flashcards_active(front, back, next_revision, user_id, deck_id) VALUES ('".$_POST['front']."', '".$_POST['back']."', CURRENT_DATE, '".$_SESSION['user_id']."', '".$_SESSION['deck_id']."');");
         if(mysqli_affected_rows($conn)!=1) $queryError++;
     mysqli_query($conn, "UPDATE decks SET flashcard_count=flashcard_count+1 WHERE deck_id='".$_SESSION['deck_id']."';");
         if(mysqli_affected_rows($conn)!=1) $queryError++;
@@ -43,7 +43,6 @@ if(isset($_GET['add']) && $_GET['add']=='c' && isset($_POST['front']))
         mysqli_query($conn, "COMMIT;");
 
     $_GET['add']='a';
-    //czy do countera powinny się liczyć także fiszki z archiwum?
 }
 
 //ogarnąć, gdzie powinno to być względem transakcji
