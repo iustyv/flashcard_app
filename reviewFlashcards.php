@@ -6,6 +6,10 @@ if(!isset($_SESSION['user_id']))
 	header('Location: index.php');
 	exit();
 }
+
+include('autoryzacja.php');
+$conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection error: '.mysqli_connect_error());
+
 if(!isset($_GET['review']) && !isset($_SESSION['deck_id'])) 
 {
     header('Location: welcome.php');
@@ -26,9 +30,6 @@ else if(!isset($_SESSION['deck_id']))
 
 if(!isset($_SESSION['revision']) || (isset($_SESSION['rev_count'],$_SESSION['num_cards']) && $_SESSION['rev_count']==$_SESSION['num_cards'])) //pierwsza powtórka lub kolejne powtórki zapomnianych fiszek
 { 
-	include('autoryzacja.php');
-	$conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection error: '.mysqli_connect_error());
-
 	$result=mysqli_query($conn, "SELECT id, front, back, fluency_level FROM flashcards_active WHERE user_id='".$_SESSION['user_id']."' AND deck_id='".$_SESSION['deck_id']."' AND next_revision<=CURRENT_DATE AND completion=false ORDER BY last_updated;"); //przekazać deck_id
 	$_SESSION['num_cards']=mysqli_num_rows($result);
 

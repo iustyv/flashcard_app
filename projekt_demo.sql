@@ -2,7 +2,7 @@ CREATE DATABASE projekt;
 
 DROP TABLE IF EXISTS user_data;
 DROP TABLE IF EXISTS decks;
-DROP TABLE IF EXISTS flashcards;
+DROP TABLE IF EXISTS flashcards_active;
 
 
 CREATE TABLE user_data(
