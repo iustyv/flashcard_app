@@ -74,7 +74,7 @@ if(isset($_GET['edit']) && $_GET['edit']=='c' && isset($_POST['flashcard_id']))/
 }
 
 if(isset($_GET['search']) && $_GET['search']=='c')
-    $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE user_id='".$_SESSION['user_id']."' AND (front REGEXP '".$_POST['query']."' OR back REGEXP '".$_POST['query']."');");
+    $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE deck_id='".$_SESSION['deck_id']."' AND (front REGEXP '".$_POST['query']."' OR back REGEXP '".$_POST['query']."');");
 else
     $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE deck_id='".$_SESSION['deck_id']."';"); //nazwa tabeli zalezna od opcji
 
@@ -103,7 +103,9 @@ else
             align-items: flex-start;
             width:600px; 
             height:300px; 
-            overflow: scroll;
+            overflow: auto;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         #search {

@@ -97,12 +97,20 @@ else if(isset($_SESSION['revision'],$_SESSION['rev_count'],$_SESSION['num_cards'
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title></title>
-	<style>
-	</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <title></title>
 </head>
-
-<body>
+<nav>
+    <a href="welcome.php">Review flashcards</a>
+    <a href="manageDecks.php">Manage decks</a>
+    <a href="settings.php">Settings</a>
+    <a href="welcome.php?logOut=1">Log out</a>  
+</nav>
+<main>
 	<?php
 	if ($_SESSION['num_cards']==0) {
 		echo '<p>There are no more flashcards to review. Come back tomorrow!</p>';
@@ -129,5 +137,6 @@ else if(isset($_SESSION['revision'],$_SESSION['rev_count'],$_SESSION['num_cards'
 
 	}
 	?>
+</main>
 </body>
 </html>

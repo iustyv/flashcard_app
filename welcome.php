@@ -24,10 +24,21 @@ $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['use
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
     <title></title>
 </head>
 <body>
-    <table>
+<nav>
+    <a href="welcome.php">Review flashcards</a>
+    <a href="manageDecks.php">Manage decks</a>
+    <a href="settings.php">Settings</a>
+    <a href="welcome.php?logOut=1">Log out</a>  
+</nav>
+<main>
+    <table class="decksTable">
         <?php
         while ($row = mysqli_fetch_array($result))
         {
@@ -40,7 +51,6 @@ $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['use
         }
         ?>
     </table>
-    <a href="manageDecks.php">Manage decks</a>
-    <a href="welcome.php?logOut=1">Log out</a>
+</main>
 </body>
 </html>
