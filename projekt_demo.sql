@@ -27,6 +27,7 @@ CREATE TABLE flashcards_active(
     next_revision date,
     fluency_level tinyint(1) DEFAULT 0,
     completion boolean DEFAULT 0,
+    last_updated datetime,
     
     deck_id int NOT NULL,
     user_id int NOT NULL,

@@ -30,7 +30,7 @@ else if(!isset($_SESSION['deck_id']))
 
 if(!isset($_SESSION['revision']) || (isset($_SESSION['rev_count'],$_SESSION['num_cards']) && $_SESSION['rev_count']==$_SESSION['num_cards'])) //pierwsza powtórka lub kolejne powtórki zapomnianych fiszek
 { 
-	$result=mysqli_query($conn, "SELECT id, front, back, fluency_level FROM flashcards_active WHERE user_id='".$_SESSION['user_id']."' AND deck_id='".$_SESSION['deck_id']."' AND next_revision<=CURRENT_DATE AND completion=false ORDER BY last_updated;"); //przekazać deck_id
+	$result=mysqli_query($conn, "SELECT flashcard_id, front, back, fluency_level FROM flashcards_active WHERE user_id='".$_SESSION['user_id']."' AND deck_id='".$_SESSION['deck_id']."' AND next_revision<=CURRENT_DATE AND completion=false ORDER BY last_updated;"); //przekazać deck_id
 	$_SESSION['num_cards']=mysqli_num_rows($result);
 
 	if ($_SESSION['num_cards']) //pobranie wyniku zapytania, jeżeli są jakieś fiszki do powtórki
@@ -46,7 +46,7 @@ else if(isset($_SESSION['revision'],$_SESSION['rev_count'],$_SESSION['num_cards'
 	if(isset($_GET['review']) && !is_numeric($_GET['review'])) 
 	{
 		$current_level=$_SESSION['revision'][$_SESSION['rev_count']]['fluency_level'];
-		$current_id = $_SESSION['revision'][$_SESSION['rev_count']]['id'];
+		$current_id = $_SESSION['revision'][$_SESSION['rev_count']]['flashcard_id'];
 
 		if($_GET['review']=='y')
 		{
@@ -69,19 +69,25 @@ else if(isset($_SESSION['revision'],$_SESSION['rev_count'],$_SESSION['num_cards'
 					break;
 				case 5:
 					$days = 50;
-					break;
-
-				if($current_level!=6)//ogarnąć poziom
-					mysqli_query($conn, "UPDATE flashcards_active SET next_revision=ADDDATE(CURRENT_DATE, $days), fluency_level=fluency_level+1, last_updated=CURRENT_TIMESTAMP WHERE flashcard_id='".$current_id."';");
-				else
-					mysqli_query($conn, "UPDATE flashcards_active SET completion=true, last_updated=CURRENT_TIMEMSTAMP WHERE flashcard_id='".$current_id."';");
+					break;	
 			}
+
+			if($current_level!=6)
+				mysqli_query($conn, "UPDATE flashcards_active SET next_revision=ADDDATE(CURRENT_DATE, $days), fluency_level=fluency_level+1, last_updated=CURRENT_TIMESTAMP WHERE flashcard_id='".$current_id."';");
+			else
+				mysqli_query($conn, "UPDATE flashcards_active SET completion=true, last_updated=CURRENT_TIMEMSTAMP WHERE flashcard_id='".$current_id."';");
 		}
 		else if($_GET['review']=='n')
 		{
 			mysqli_query($conn, "UPDATE flashcards_active SET next_revision=CURRENT_DATE, fluency_level=0, last_updated=CURRENT_TIMESTAMP WHERE flashcard_id='".$current_id."';");
 		}
 		$_SESSION['rev_count']++;
+
+		if($_SESSION['rev_count']==$_SESSION['num_cards'])
+		{
+			header('Location: reviewFlashcards.php');
+			exit();
+		}
 	}
 }
 	
@@ -99,7 +105,8 @@ else if(isset($_SESSION['revision'],$_SESSION['rev_count'],$_SESSION['num_cards'
 <body>
 	<?php
 	if ($_SESSION['num_cards']==0) {
-		echo "<p>There are no more flashcards to review. Come back tomorrow!</p>";
+		echo '<p>There are no more flashcards to review. Come back tomorrow!</p>';
+		echo '<a href="welcome.php"><button>Go back</button></a>';
 		unset($_SESSION['num_cards'], $_SESSION['revision'], $_SESSION['rev_count']);
 	}
 	else {
@@ -108,7 +115,7 @@ else if(isset($_SESSION['revision'],$_SESSION['rev_count'],$_SESSION['num_cards'
 		echo '<p id="back" style="display:none;">'.$_SESSION['revision'][$_SESSION['rev_count']]['back'].'</p>'; //wyobraź sobie jako tablicę dwuwymiarową wewnątrz wiersza tablicy zmiennych sesyjnych
 
 		ECHO <<< HTML
-		<form action="reviewFlashcards.php?review=y" method="GET">
+		<form action="reviewFlashcards.php?review=y" method="POST">
 			<input type="submit" value="&#10004;"> <!--przycisk "pamiętam"-->
 			<input type="submit" value="&#10006;" formaction="reviewFlashcards.php?review=n"> <!--przycisk "nie pamiętam"-->
 		</form>

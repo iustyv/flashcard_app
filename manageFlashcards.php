@@ -33,7 +33,7 @@ if(isset($_GET['add']) && $_GET['add']=='c' && isset($_POST['front']))
     $queryError=0;
     //transakcja
     mysqli_query($conn, "BEGIN;");
-    mysqli_query($conn, "INSERT INTO flashcards_active(front, back, next_revision, user_id, deck_id) VALUES ('".$_POST['front']."', '".$_POST['back']."', CURRENT_DATE, '".$_SESSION['user_id']."', '".$_SESSION['deck_id']."');");
+    mysqli_query($conn, "INSERT INTO flashcards_active(front, back, next_revision, last_updated, user_id, deck_id) VALUES ('".$_POST['front']."', '".$_POST['back']."', CURRENT_DATE, CURRENT_TIMESTAMP, '".$_SESSION['user_id']."', '".$_SESSION['deck_id']."');");
         if(mysqli_affected_rows($conn)!=1) $queryError++;
     mysqli_query($conn, "UPDATE decks SET flashcard_count=flashcard_count+1 WHERE deck_id='".$_SESSION['deck_id']."';");
         if(mysqli_affected_rows($conn)!=1) $queryError++;
@@ -95,6 +95,15 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
         .formDiv input {
             width:200px;
         }
+
+        table {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width:600px; 
+            height:300px; 
+            overflow: scroll;
+        }
     </style>
 </head>
 <body>
@@ -109,9 +118,13 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
     ?>
 </aside>
 <main>
-    <a href="manageFlashcards.php?edit=a"><button>Edit</button></a>
-    <a href="manageFlashcards.php?delete=a"><button>Delete</button></a>
-    <?php 
+    <?php
+    if(mysqli_num_rows($flashcards_result) && (!isset($_GET['add']) || $_GET['add']=='e'))
+    {
+        echo '<a href="manageFlashcards.php?edit=a"><button>Edit</button></a>';
+        echo '<a href="manageFlashcards.php?delete=a"><button>Delete</button></a>';
+    }
+
     if(isset($_GET['add']) && $_GET['add']=='a')
     {
         ECHO<<<HTML
@@ -149,7 +162,7 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
         echo '<input type="reset" value="Cancel">';
         echo '</form>';
     }
-    else
+    else if(mysqli_num_rows($flashcards_result))
     {            
         echo '<table>';
         while($row=mysqli_fetch_array($flashcards_result))
