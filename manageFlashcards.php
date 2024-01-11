@@ -26,8 +26,6 @@ else if(!isset($_SESSION['deck_id']))
     mysqli_free_result($temp);    
 }
 
-if(isset($_GET['add']) && $_GET['add']=='e') unset($_GET['add']); //czy to na pewno potrzebne
-
 if(isset($_GET['add']) && $_GET['add']=='c' && isset($_POST['front']))
 {
     $queryError=0;
@@ -75,7 +73,10 @@ if(isset($_GET['edit']) && $_GET['edit']=='c' && isset($_POST['flashcard_id']))/
     $_GET['edit']='a';
 }
 
-$flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE deck_id='".$_SESSION['deck_id']."';"); //nazwa tabeli zalezna od opcji
+if(isset($_GET['search']) && $_GET['search']=='c')
+    $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE user_id='".$_SESSION['user_id']."' AND (front REGEXP '".$_POST['query']."' OR back REGEXP '".$_POST['query']."');");
+else
+    $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE deck_id='".$_SESSION['deck_id']."';"); //nazwa tabeli zalezna od opcji
 
 ?>
 <!DOCTYPE html>
@@ -104,6 +105,10 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
             height:300px; 
             overflow: scroll;
         }
+
+        #search {
+            display: flex;
+        }
     </style>
 </head>
 <body>
@@ -114,15 +119,29 @@ $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE de
     if(isset($_GET['add']) && $_GET['add']=='a')
         echo '<button><a href="manageFlashcards.php?add=e">Manage flashcards</a></button>';
     else 
+    {
         echo '<button><a href="manageFlashcards.php?add=a">New flashcard</a></button>';
+        if(mysqli_num_rows($flashcards_result) && (!isset($_GET['add']) || $_GET['add']=='e'))
+        {
+            echo '<div>';
+            echo '<a href="manageFlashcards.php?edit=a"><button>Edit</button></a>';
+            echo '<a href="manageFlashcards.php?delete=a"><button>Delete</button></a>';
+            echo '</div>';
+        }
+    } 
     ?>
 </aside>
 <main>
     <?php
     if(mysqli_num_rows($flashcards_result) && (!isset($_GET['add']) || $_GET['add']=='e'))
     {
-        echo '<a href="manageFlashcards.php?edit=a"><button>Edit</button></a>';
-        echo '<a href="manageFlashcards.php?delete=a"><button>Delete</button></a>';
+        echo '<div id="search">';
+        echo '<form action="manageFlashcards.php?search=c" method="POST">';
+        echo '<input type="text" name="query" required>';
+        echo '<input type="submit">';
+        echo '</form>';        
+        echo '<a href="manageFlashcards.php"><button>Cancel</button></a>';
+        echo '</div>';
     }
 
     if(isset($_GET['add']) && $_GET['add']=='a')
