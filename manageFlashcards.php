@@ -163,7 +163,7 @@ else
         while($row=mysqli_fetch_array($flashcards_result))
         {
             echo '<tr>';
-            echo '<td style="width:fit-content; padding-right:5px; border-right:none;"><input type="checkbox" id="flash'.$i.'" name="flash'.$i.'" value="'.$row['flashcard_id'].'"></td>';
+            echo '<td style="width:fit-content; padding-right:5px; border-right:none;"><input type="checkbox" id="flash'.$i.'" name="flash[]" value="'.$row['flashcard_id'].'"></td>';
             echo '<td><label for="flash'.$i.'">'.$row['front'].'</label></td>';
             echo '<td><label for="flash'.$i.'">'.$row['back'].'</label></td>';
             echo '</tr>';
