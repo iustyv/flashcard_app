@@ -12,8 +12,6 @@ if(isset($_GET['logOut']) && $_GET['logOut']){
     header('Location: index.php');
     exit();
 }
-
-unset($_SESSION['revision'], $_SESSION['rev_count'], $_SESSION['num_cards'], $_SESSION['deck_id']);
       
 include('autoryzacja.php');
 $conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection error: '.mysqli_connect_error());
