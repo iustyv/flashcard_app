@@ -49,21 +49,17 @@ $deck_info=mysqli_fetch_array($deck_result);
 
 if(isset($_GET['delete']) && $_GET['delete']=='c')
 {
-    for($i=0; $i<$deck_info['flashcard_count']; $i++)
-    {
-        if(isset($_POST['flash'.$i]))
-        {
-            $queryError= 0;
-            mysqli_query($conn,"BEGIN;");
-            mysqli_query($conn,"DELETE FROM flashcards_active WHERE flashcard_id='".$_POST['flash'.$i]."';");
-                if(mysqli_affected_rows($conn)!=1) $queryError++;
-            mysqli_query($conn,"UPDATE decks SET flashcard_count=flashcard_count-1 WHERE deck_id='".$_SESSION['deck_id']."';");
-                if(mysqli_affected_rows($conn)!=1) $queryError++;
-            if($queryError)
-                mysqli_query($conn, "ROLLBACK;");
-            else
-                mysqli_query($conn, "COMMIT;");
-        }
+    foreach($_POST['flash'] as $flash){
+        $queryError= 0;
+        mysqli_query($conn,"BEGIN;");
+        mysqli_query($conn,"DELETE FROM flashcards_active WHERE flashcard_id='".$flash."';");
+        if(mysqli_affected_rows($conn)!=1) $queryError++;
+        mysqli_query($conn,"UPDATE decks SET flashcard_count=flashcard_count-1 WHERE deck_id='".$_SESSION['deck_id']."';");
+            if(mysqli_affected_rows($conn)!=1) $queryError++;
+        if($queryError)
+            mysqli_query($conn, "ROLLBACK;");
+        else
+            mysqli_query($conn, "COMMIT;");
     }
 }
 
