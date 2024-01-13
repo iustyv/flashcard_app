@@ -83,66 +83,57 @@ else
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
     <style>
-        body {
-            display: flex;
-        }
+        tbody, tr {width:700px;}
+        tbody {height:400px;}
 
-        .formDiv {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .formDiv input {
-            width:200px;
-        }
-
-        table {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            width:600px; 
-            height:300px; 
-            overflow: auto;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-
-        #search {
-            display: flex;
-        }
+        ::-webkit-scrollbar {width: 10px;}
+        ::-webkit-scrollbar-thumb {background: rgb(49, 48, 57);}
+        ::-webkit-scrollbar-thumb:hover {background: rgb(95, 71, 235);}
+        
     </style>
+    <title></title>
 </head>
 <body>
 <aside>
-    <button><a href="manageDecks.php">Go back</a></button>
-    <h1><?php echo $deck_info['deck_name']?></h1>
+    <h1 class="flashAside"><?php echo $deck_info['deck_name']?></h1>
     <?php
     if(isset($_GET['add']) && $_GET['add']=='a')
-        echo '<button><a href="manageFlashcards.php?add=e">Manage flashcards</a></button>';
+        echo '<a href="manageFlashcards.php?add=e" class="flashAside"><button>Manage flashcards</button></a>';
     else 
     {
-        echo '<button><a href="manageFlashcards.php?add=a">New flashcard</a></button>';
-        if(mysqli_num_rows($flashcards_result) && (!isset($_GET['add']) || $_GET['add']=='e'))
+        echo '<a href="manageFlashcards.php?add=a" class="flashAside"><button>New flashcard</button></a>';
+        if(!isset($_GET['add']) || $_GET['add']=='e')
         {
-            echo '<div>';
+            echo '<div class="flashAside">';
             echo '<a href="manageFlashcards.php?edit=a"><button>Edit</button></a>';
             echo '<a href="manageFlashcards.php?delete=a"><button>Delete</button></a>';
             echo '</div>';
         }
     } 
     ?>
+    <nav style="position: relative; top: 340px; left: 0px;">
+        <a href="welcome.php">Review flashcards</a>
+        <a href="manageDecks.php">Manage decks</a>
+        <a href="settings.php">Settings</a>        
+        <a href="welcome.php?logOut=1">Log out</a>
+    </nav>
 </aside>
 <main>
     <?php
-    if(mysqli_num_rows($flashcards_result) && (!isset($_GET['add']) || $_GET['add']=='e'))
+    if(!isset($_GET['add']) || $_GET['add']=='e')
     {
         echo '<div id="search">';
         echo '<form action="manageFlashcards.php?search=c" method="POST">';
         echo '<input type="text" name="query" required>';
-        echo '<input type="submit">';
+        echo '<input type="submit" value="Search">';
         echo '</form>';        
-        echo '<a href="manageFlashcards.php"><button>Cancel</button></a>';
+        echo '<a href="manageFlashcards.php"><button>See all</button></a>';
         echo '</div>';
     }
 
@@ -160,19 +151,19 @@ else
             <textarea id="back" name="back" rows="8" cols="75"></textarea>
         </div>
         <input type="submit" value="Add">
-        <input type="submit" value="Cancel" formaction="manageFlashcards.php?add=e">
+        <input type="reset" value="Clear">
         </form>
         HTML;
     }
     else if(isset($_GET['delete']) && $_GET['delete']=='a')
     {
         echo '<form method="POST" action="manageFlashcards.php?delete=c">';
-        echo '<table>';
+        echo '<table class="flashTable">';
         $i=0;
         while($row=mysqli_fetch_array($flashcards_result))
         {
             echo '<tr>';
-            echo '<td><input type="checkbox" id="flash'.$i.'" name="flash'.$i.'" value="'.$row['flashcard_id'].'"></td>';
+            echo '<td style="width:fit-content; padding-right:5px; border-right:none;"><input type="checkbox" id="flash'.$i.'" name="flash'.$i.'" value="'.$row['flashcard_id'].'"></td>';
             echo '<td><label for="flash'.$i.'">'.$row['front'].'</label></td>';
             echo '<td><label for="flash'.$i.'">'.$row['back'].'</label></td>';
             echo '</tr>';
@@ -183,9 +174,27 @@ else
         echo '<input type="reset" value="Cancel">';
         echo '</form>';
     }
-    else if(mysqli_num_rows($flashcards_result))
+    else if(isset($_GET['edit']) && is_numeric($_GET['edit']))
     {            
-        echo '<table>';
+        $temp=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE user_id='".$_SESSION['user_id']."' AND flashcard_id='".$_GET['edit']."';");
+        if($row=mysqli_fetch_array($temp))
+        {
+            echo '<form method="POST" action="manageFlashcards.php?edit=c" id="editFlash">';
+            echo '<input type="hidden" name="flashcard_id" value="'.$_GET['edit'].'">';
+            echo '<div class="formDiv">';
+            echo '<label for id="front">Front</label>';
+            echo '<textarea id="front" name="front" rows="8" cols="75" required>'.$row['front'].'</textarea></div>';
+            echo '<div class="formDiv">';
+            echo '<label for id="back">Back</label>';
+            echo '<textarea id="back" name="back" rows="8" cols="75">'.$row['back'].'</textarea></div>';
+            echo '<input type="submit" value="Edit">';
+            echo '<input type="submit" value="Cancel" formaction="manageFlashcards.php?edit=e"></form>';
+        }
+            mysqli_free_result($temp);
+    }
+    else 
+    {
+        echo '<table class="flashTable">';
         while($row=mysqli_fetch_array($flashcards_result))
         {
             echo '<tr>';
@@ -194,23 +203,6 @@ else
             echo '</tr>';
         }
         echo '</table>';
-        if(isset($_GET['edit']) && is_numeric($_GET['edit'])){
-            $temp=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE user_id='".$_SESSION['user_id']."' AND flashcard_id='".$_GET['edit']."';");
-            if($row=mysqli_fetch_array($temp))
-            {
-                echo '<form method="POST" action="manageFlashcards.php?edit=c">';
-                echo '<input type="hidden" name="flashcard_id" value="'.$_GET['edit'].'">';
-                echo '<div class="formDiv">';
-                echo '<label for id="front">';
-                echo '<textarea id="front" name="front" rows="8" cols="75" required>'.$row['front'].'</textarea></div>';
-                echo '<div class="formDiv">';
-                echo '<label for id="back">';
-                echo '<textarea id="back" name="back" rows="8" cols="75">'.$row['back'].'</textarea></div>';
-                echo '<input type="submit" value="Edit">';
-                echo '<input type="submit" value="Cancel" formaction="manageFlashcards.php?edit=e"></form>';
-            }
-            mysqli_free_result($temp);
-        }
     }
     ?>
 </main>

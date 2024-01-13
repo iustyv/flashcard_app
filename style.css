@@ -42,6 +42,14 @@ main {
     button {
         font-family: 'DM Sans', sans-serif;
     }
+    
+    .flashAside {
+        padding-left: 30px;
+    }
+
+   aside button {
+        margin-bottom: 15px;
+    }
 
     .decksTable {
         width: 500px;
@@ -117,7 +125,7 @@ main {
         flex-direction: column;
     }
 
-    .formDiv input[type=text], input[type=password]{
+    input[type=text], input[type=password]{
         border-radius: 50px;
         padding: 3px 6px;
         width: 200px;
@@ -130,4 +138,68 @@ main {
 
     .submitDiv {
         margin: 15px;
+    }
+
+    .flashTable tbody{
+        overflow: auto; 
+        overflow-x: hidden;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        border-collapse: collapse;
+        row-gap: 20px;
+    }
+
+    .flashTable tr {
+        border-bottom: 1px solid rgb(66, 64, 78);
+        display: flex;
+    }
+
+    .flashTable a, label {
+        display: block;
+        width: 100%;
+        color: white;
+        transition-duration: 300ms;
+        padding: 0 0 5px 10px;
+        font-size: 17px;
+
+    }
+
+    .flashTable a:hover, label:hover{
+        color: rgb(95, 71, 235);
+        transition-duration: 300ms;
+    }
+
+    .flashTable td {
+        width: 50%;
+        border-right: 1px solid rgb(66, 64, 78);
+        overflow: hidden;
+    }
+
+    #search {
+        display: flex;
+        width: 600px;
+        align-items: center;
+        margin-bottom: 50px;
+    }
+
+    #search form{
+        display: flex;
+        height: fit-content;
+        flex-grow: 100;
+    }
+
+    #search input[type=text] {
+        flex-grow: 100;
+    }
+
+    textarea {
+        background-color: rgb(49, 48, 57);
+        border: 1px solid rgb(157, 140, 255);
+        font-family: inherit;
+        color: white;
+        border-radius: 10px;
+        padding: 3px 6px;
+        resize: none;
     }

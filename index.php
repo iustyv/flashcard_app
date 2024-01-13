@@ -52,7 +52,6 @@ if(isset($_POST['username']))
             }
             else
                 $signUpError='Please make sure your passwords match.';
-                
         }
         else 
             $signUpError='Username already exists. Please try again.';
@@ -65,33 +64,49 @@ if(isset($_POST['username']))
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
     <style>
-        .formDiv {
-            display: flex;
-            flex-direction: column;
-        }
+        a {
+        color: rgb(139, 134, 167);
+        transition-duration: 300ms;
+    }
 
-        .formDiv input {
-            width:200px;
-        }
+    a:hover {
+        color: rgb(95, 71, 235);
+        transition-duration: 300ms;
+    }
+
+    input[type=submit] {
+        padding: 7px 15px;
+        font-size: 17px;
+        margin-right: 20px;
+    }
+
+    span {
+        font-size: 17px;
+    }
     </style>
+    <title></title>
 </head>
 <body>
+<main>
     <form method="POST" action="index.php?action=<?php echo $action;?>">
         <div class="formDiv">
             <label for="username">Username</label>
-            <input type="text" id="username" name="username" value="<?php if(isset($_POST['username'])) echo $_POST['username']?>" required>
+            <input type="text" id="username" name="username" value="<?php if(isset($_POST['username'])) echo $_POST['username']?>" autocomplete="off" required>
         </div>
         <div class="formDiv">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" value="<?php if(isset($_POST['password'])) echo $_POST['password']?>" required>
+            <input type="password" id="password" name="password" value="<?php if(isset($_POST['password'])) echo $_POST['password']?>" autocomplete="off" required>
         </div>
         <?php
             if($action=='logIn')
             {
                 ECHO<<<HTML
-                <input type="submit" value="Log in">
+                <br><input type="submit" value="Log in">
                 <span>Don't have an account? <a href="index.php?signUp=1">Sign up</a></span>
                 HTML;
             }
@@ -100,22 +115,23 @@ if(isset($_POST['username']))
                 ECHO<<<HTML
                 <div class="formDiv">
                     <label for="passwordRepeat">Repeat password</label>
-                    <input type="password" id="passwordRepeat" name="passwordRepeat" required>
-                </div>
+                    <input type="password" id="passwordRepeat" name="passwordRepeat" autocomplete="off" required>
+                </div><br>
                 <input type="submit" value="Sign up">
                 <span>Already have an account? <a href="index.php?signUp=0">Log in</a></span>
                 HTML;
             }
 
             if (isset($logInError))    
-                echo '<span>'.$logInError.'</span>';
+                echo '<p>'.$logInError.'</p>';
 
             if (isset($signUpError))    
-                echo '<span>'.$signUpError.'</span>';
+                echo '<p>'.$signUpError.'</p>';
 
             unset($logInError, $signUpError);
 
             ?>  
     </form>
+</main>
 </body>
 </html>

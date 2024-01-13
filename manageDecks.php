@@ -97,7 +97,7 @@ $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['use
             }
             else 
             {
-                echo '<td><a href="manageFlashcards.php?manage='.$row['deck_id'].'">'.$row['deck_name'].'</a></td>';
+                echo '<td><a href="manageFlashcards.php?manage='.$row['deck_id'].'" class="deckName">'.$row['deck_name'].'</a></td>';
                 echo '<td><a href="manageDecks.php?rename='.$row['deck_id'].'">Rename</a></td>';
             }
 
