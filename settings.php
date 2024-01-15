@@ -13,8 +13,8 @@ $conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection erro
 $result=mysqli_query($conn, "SELECT * FROM user_data WHERE user_id='".$_SESSION['user_id']."';");
 $row=mysqli_fetch_array($result);
 
-if(isset($_GET['user']) && $_GET['user']=='e') unset($_POST['username']); //powoduje usunięcie wiadomości o istniejącym nicku i przywrócenie defaultowej value
-else if(isset($_POST['username']) && $_POST['username']!=$row['username'])
+if((isset($_GET['user']) && $_GET['user']=='e') || empty($_POST['username'])) unset($_POST['username']); //powoduje usunięcie wiadomości o istniejącym nicku i przywrócenie defaultowej value
+else if(!empty($_POST['username']) && $_POST['username']!=$row['username'])
 {
     $temp=mysqli_query($conn, "SELECT * FROM user_data WHERE username=CAST('".$_POST['username']."' AS BINARY);");
     if(!mysqli_num_rows($temp))
@@ -71,14 +71,14 @@ if(isset($_POST['passwordOld']))
 </nav>
 <main>
     <div>
-        <form action="settings.php?user=c" method="POST">
+        <form action="settings.php" method="POST">
             <div class="formDiv">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" value="<?php if(isset($_POST['username'])) echo $_POST['username']; else if(isset($row['username'])) echo $row['username']?>">
             </div>
             <div class="submitDiv">
                 <input type="submit" value="Confirm">
-                <input type="reset" value="Cancel">
+                <input type="submit" value="Cancel" formaction="settings.php?user=e">
             </div>
         </form>
         <br>

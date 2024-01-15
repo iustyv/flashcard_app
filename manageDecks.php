@@ -10,23 +10,23 @@ unset($_SESSION['deck_id']);
 include('autoryzacja.php');
 $conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection error: '.mysqli_connect_error());
 
-if(isset($_GET['add']) && $_GET['add']=='c' && isset($_POST['deck_name']))
-    mysqli_query($conn, "INSERT INTO decks(deck_name, user_id) VALUES ('".$_POST['deck_name']."', '".$_SESSION['user_id']."');");
+if(!empty($_POST['deck_add']))    
+    mysqli_query($conn, "INSERT INTO decks(deck_name, user_id) VALUES ('".$_POST['deck_add']."', '".$_SESSION['user_id']."');");
 
-if(isset($_GET['rename']) && $_GET['rename']=='c' && isset($_POST['deck_name']))
-    mysqli_query($conn, "UPDATE decks SET deck_name='".$_POST['deck_name']."' WHERE deck_id='".$_POST['deck_id']."';");
+if(isset($_POST['deck_rename']) && !empty($_POST['deck_name']))
+    mysqli_query($conn, "UPDATE decks SET deck_name='".$_POST['deck_name']."' WHERE deck_id='".$_POST['deck_rename']."';");
 
-if(isset($_GET['delete']) && $_GET['delete']=='c') //czy powinna być transkacja
-{
+if(isset($_POST['deck_delete']))
+    {
     $queryError=0;
-    $temp=mysqli_query($conn, "SELECT * FROM decks WHERE deck_id='".$_POST['deck_id']."';");
+    $temp=mysqli_query($conn, "SELECT * FROM decks WHERE deck_id='".$_POST['deck_delete']."';");
     $row=mysqli_fetch_array($temp);
     mysqli_query($conn, "BEGIN;");
-    mysqli_query($conn, "DELETE FROM flashcards_active WHERE deck_id='".$_POST['deck_id']."';");  
+    mysqli_query($conn, "DELETE FROM flashcards_active WHERE deck_id='".$_POST['deck_delete']."';");  
         if(mysqli_affected_rows($conn)!=$row['flashcard_count']) $queryError; 
-    mysqli_query($conn, "DELETE FROM decks WHERE deck_id='".$_POST['deck_id']."';");
+    mysqli_query($conn, "DELETE FROM decks WHERE deck_id='".$_POST['deck_delete']."';");
         if(mysqli_affected_rows($conn)!=1) $queryError++;
-    if($queryError) //wiadomość o niepowodzeniu
+    if($queryError)
         mysqli_query($conn, "ROLLBACK;");
     else
         mysqli_query($conn, "COMMIT;");
@@ -87,48 +87,43 @@ $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['use
 
             if(isset($_GET['rename']) && $_GET['rename']==$row['deck_id'])
             {
-                echo '<form action="manageDecks.php?rename=c" method="POST">';
-                echo '<td><input type="text" name="deck_name" value="'.$row['deck_name'].'" required></td>';
-                //parametr value nie załatwia sprawy całkowicie, bo jeżeli użytkownik go usunie, a potem się rozmyśli, nie będzie mógł wcisnąć przycisku cancel
-                echo '<input type="hidden" name="deck_id" value="'.$_GET['rename'].'">';
+                echo '<form action="manageDecks.php" method="POST">';
+                echo '<td><input type="text" name="deck_name" value="'.$row['deck_name'].'"></td>';
+                echo '<input type="hidden" name="deck_rename" value="'.$_GET['rename'].'">';
                 echo '<td><input type="submit" value="Confirm">';
-                echo '<input type="submit" value="Cancel" formaction="manageDecks.php?rename=e">';
                 echo '</td></form>';
             }
             else 
             {
                 echo '<td><a href="manageFlashcards.php?manage='.$row['deck_id'].'" class="deckName">'.$row['deck_name'].'</a></td>';
-                echo '<td><a href="manageDecks.php?rename='.$row['deck_id'].'">Rename</a></td>';
+                if(!isset($_GET['delete']) || $_GET['delete']!=$row['deck_id'])
+                    echo '<td><a href="manageDecks.php?rename='.$row['deck_id'].'">Rename</a></td>';
             }
 
             if(isset($_GET['delete']) && $_GET['delete']==$row['deck_id'])
             {
-                echo '<form action="manageDecks.php?delete=c" method="POST">';
-                echo '<input type="hidden" name="deck_id" value="'.$_GET['delete'].'">';
-                echo '<td><input type="submit" value="Confirm">';
-                echo '<input type="submit" value="Cancel" formaction="manageDecks.php?delete=e">';
-                echo '</td></form></tr>';
+                echo '<form action="manageDecks.php" method="POST">';
+                echo '<input type="hidden" name="deck_delete" value="'.$_GET['delete'].'">';
+                echo '<td><input type="submit" value="Confirm"></td></form>';
+                echo '<td><a href="manageDecks.php">Cancel</a></td></tr>';
                 echo '<tr><td>! All flashcards from the deck will also be deleted.</td></tr>';
             }
+            else if(isset($_GET['rename']) && $_GET['rename']==$row['deck_id'])
+                echo '<td><a href="manageDecks.php">Cancel</a></td></tr>';
             else 
             	echo '<td><a href="manageDecks.php?delete='.$row['deck_id'].'">Delete</a></td></tr>';
 
         }
-
-        /*
-        1. action (a) lub id - użytkownik wybrał akcję do wykonania, id w przypadku działań na konkretnych rekordach
-        2. confirm (c) - użytkownik potwierdził zmiany
-        3. exit (e) - użytkownik zrezygnował z wprowadzenia zmian*/
 
         if(isset($_GET['add']) && $_GET['add']=='a')
         {
             ECHO<<<HTML
             
             <tr>
-            <form action="manageDecks.php?add=c" method="POST">
-            <td><input type="text" name="deck_name" value="Deck name" required>
+            <form action="manageDecks.php" method="POST">
+            <td><input type="text" name="deck_add" value="Deck name">
             <input type="submit" value="Add">
-            <input type="submit" value="Cancel" formaction="manageDecks.php?add=e"></td>
+            <a href="manageDecks.php">Cancel</a></td>
             </form>
             </tr>
 

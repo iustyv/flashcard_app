@@ -51,7 +51,7 @@ if(!mysqli_num_rows($result))
         {
             echo '<tr>';
 
-            echo '<td class="deckName">'.$row['deck_name'].'</td>';
+            echo '<td>'.$row['deck_name'].'</td>';
             echo '<td><a href="reviewFlashcards.php?review='.$row['deck_id'].'">Review</a></td>';
 
             echo '</tr>';
