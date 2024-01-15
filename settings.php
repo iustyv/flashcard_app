@@ -76,8 +76,10 @@ if(isset($_POST['passwordOld']))
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" value="<?php if(isset($_POST['username'])) echo $_POST['username']; else if(isset($row['username'])) echo $row['username']?>">
             </div>
-            <input type="submit" value="Confirm">
-            <input type="submit" value="Cancel" formaction="settings.php?user=e ">
+            <div class="submitDiv">
+                <input type="submit" value="Confirm">
+                <input type="reset" value="Cancel">
+            </div>
         </form>
         <br>
         <?php

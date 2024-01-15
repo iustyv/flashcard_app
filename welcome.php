@@ -12,11 +12,18 @@ if(isset($_GET['logOut']) && $_GET['logOut']){
     header('Location: index.php');
     exit();
 }
-      
+ 
+unset($_SESSION['revision'], $_SESSION['rev_count'], $_SESSION['num_cards'], $_SESSION['deck_id']);
+
 include('autoryzacja.php');
 $conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection error: '.mysqli_connect_error());
 
 $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['user_id']."';");
+if(!mysqli_num_rows($result))
+{
+    header('Location: manageDecks.php');
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -44,7 +51,7 @@ $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['use
         {
             echo '<tr>';
 
-            echo '<td>'.$row['deck_name'].'</td>';
+            echo '<td class="deckName">'.$row['deck_name'].'</td>';
             echo '<td><a href="reviewFlashcards.php?review='.$row['deck_id'].'">Review</a></td>';
 
             echo '</tr>';
