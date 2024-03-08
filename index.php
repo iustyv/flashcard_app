@@ -10,7 +10,7 @@ if(isset($_SESSION['user_id']))
 include('autoryzacja.php');
 $conn=mysqli_connect($dbhost, $dbuser, $dbpass, $dbname) or die('Connection error: '.mysqli_connect_error());
 
-if((isset($_GET['signUp']) && $_GET['signUp']) || (isset($_GET['action']) && $_GET['action']=='signUp')) //kontrola treści formularza
+if(isset($_GET['action']) && $_GET['action']=='signUp') //kontrola treści formularza
     $action='signUp';
 else
     $action='logIn';
@@ -22,12 +22,12 @@ dwa przypadki:
 
 if(isset($_POST['username']))
 {
-    if($_GET['action']=='logIn') //musi być GET, ponieważ ta część jest obsługiwana po przesłaniu formularza - formularz korzysta ze zmiennej $action, żeby ustawić odpowiednie pola, a po wypełnieniu przesyła ją z powrotem GETem
+    $result=mysqli_query($conn,"SELECT * FROM user_data WHERE username=CAST('".$_POST['username']."' AS BINARY);");
+    if($action=='logIn')
     {
-        $result=mysqli_query($conn, "SELECT * FROM user_data WHERE username=CAST('".$_POST['username']."' AS BINARY) AND password=CAST('".$_POST['password']."' AS BINARY);");
-        if(mysqli_num_rows($result)==1)
+        $row=mysqli_fetch_array($result);
+        if(mysqli_num_rows($result) && password_verify($_POST['password'], $row['password']))
         {
-            $row=mysqli_fetch_array($result);
             $_SESSION['user_id']=$row['user_id'];
             $_SESSION['username']=$row['username'];
             header('Location: welcome.php');
@@ -37,11 +37,11 @@ if(isset($_POST['username']))
     }
     else 
     {
-        $result=mysqli_query($conn,"SELECT * FROM user_data WHERE username=CAST('".$_POST['username']."' AS BINARY);");
         if(!mysqli_num_rows($result))
         {
             if($_POST['password']==$_POST['passwordRepeat'])
             {
+                $_POST['password']=password_hash($_POST['password'], PASSWORD_DEFAULT);
                 mysqli_query($conn, "INSERT INTO user_data(username, password) VALUES ('".$_POST['username']."', '".$_POST['password']."');");
                 $result=mysqli_query($conn, "SELECT * FROM user_data WHERE username=CAST('".$_POST['username']."' AS BINARY) AND password=CAST('".$_POST['password']."' AS BINARY);");
 
@@ -89,7 +89,7 @@ if(isset($_POST['username']))
         font-size: 17px;
     }
     </style>
-    <title></title>
+    <title>Flashcards</title>
 </head>
 <body>
 <main>
@@ -100,14 +100,14 @@ if(isset($_POST['username']))
         </div>
         <div class="formDiv">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" value="<?php if(isset($_POST['password'])) echo $_POST['password']?>" autocomplete="off" required>
+            <input type="password" id="password" name="password" autocomplete="off" required>
         </div>
         <?php
             if($action=='logIn')
             {
                 ECHO<<<HTML
                 <br><input type="submit" value="Log in">
-                <span>Don't have an account? <a href="index.php?signUp=1">Sign up</a></span>
+                <span>Don't have an account? <a href="index.php?action=signUp">Sign up</a></span>
                 HTML;
             }
             else
@@ -118,18 +118,12 @@ if(isset($_POST['username']))
                     <input type="password" id="passwordRepeat" name="passwordRepeat" autocomplete="off" required>
                 </div><br>
                 <input type="submit" value="Sign up">
-                <span>Already have an account? <a href="index.php?signUp=0">Log in</a></span>
+                <span>Already have an account? <a href="index.php">Log in</a></span>
                 HTML;
             }
 
-            if (isset($logInError))    
-                echo '<p>'.$logInError.'</p>';
-
-            if (isset($signUpError))    
-                echo '<p>'.$signUpError.'</p>';
-
-            unset($logInError, $signUpError);
-
+            if (isset($logInError)) echo '<p>'.$logInError.'</p>';
+            if (isset($signUpError)) echo '<p>'.$signUpError.'</p>';
             ?>  
     </form>
 </main>
