@@ -23,7 +23,6 @@ else if(!isset($_SESSION['deck_id']))
     }
     else 
         $_SESSION['deck_id']=$_GET['manage'];
-    mysqli_free_result($temp);    
 }
 
 if(isset($_POST['front_add']))

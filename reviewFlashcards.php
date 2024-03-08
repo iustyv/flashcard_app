@@ -30,7 +30,7 @@ else if(!isset($_SESSION['deck_id']))
 
 if(!isset($_SESSION['revision']) || (isset($_SESSION['rev_count'],$_SESSION['num_cards']) && $_SESSION['rev_count']==$_SESSION['num_cards'])) //pierwsza powtórka lub kolejne powtórki zapomnianych fiszek
 { 
-	$result=mysqli_query($conn, "SELECT flashcard_id, front, back, fluency_level FROM flashcards_active WHERE user_id='".$_SESSION['user_id']."' AND deck_id='".$_SESSION['deck_id']."' AND next_revision<=CURRENT_DATE AND completion=false ORDER BY last_updated;"); //przekazać deck_id
+	$result=mysqli_query($conn, "SELECT flashcard_id, front, back, fluency_level FROM flashcards_active WHERE deck_id='".$_SESSION['deck_id']."' AND next_revision<=CURRENT_DATE AND completion=false ORDER BY last_updated;");
 	$_SESSION['num_cards']=mysqli_num_rows($result);
 
 	if ($_SESSION['num_cards']) //pobranie wyniku zapytania, jeżeli są jakieś fiszki do powtórki
