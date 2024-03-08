@@ -29,12 +29,13 @@ else if(!empty($_POST['username']) && $_POST['username']!=$row['username'])
 
 if(isset($_POST['passwordOld']))
 {
-    if($_POST['passwordOld']==$row['password'])
+    if(password_verify($_POST['passwordOld'], $row['password']))
     {
         if($_POST['passwordNew']==$_POST['passwordRepeat'])
         {
-            mysqli_query($conn, "UPDATE user_data SET password='".$_POST['passwordNew']."' WHERE user_id='".$_SESSION['user_id']."';");
             $row['password']=$_POST['passwordNew'];
+            $_POST['passwordNew']=password_hash($_POST['passwordNew'], PASSWORD_DEFAULT);
+            mysqli_query($conn, "UPDATE user_data SET password='".$_POST['passwordNew']."' WHERE user_id='".$_SESSION['user_id']."';");
         }    
         else 
             $passError='Please check your new passwords one more time.';
@@ -60,7 +61,7 @@ if(isset($_POST['passwordOld']))
             column-gap: 70px;
         }
     </style>
-    <title></title>
+    <title>Settings</title>
 </head>
 <body>
 <nav>
@@ -93,12 +94,12 @@ if(isset($_POST['passwordOld']))
         <form action="settings.php" method="POST">
             <div class="formDiv">
                 <label for="passwordOld">Current password</label>
-                <input type="password" id="passwordOld" name="passwordOld" value="<?php if(isset($_POST['passwordOld'])) echo $_POST['passwordOld'];?>" required>
+                <input type="password" id="passwordOld" name="passwordOld" required>
             </div>
             <br>
             <div class="formDiv">
                 <label for="passwordNew">New password</label>
-                <input type="password" id="passwordNew" name="passwordNew" value="<?php if(isset($_POST['passwordNew'])) echo $_POST['passwordNew'];?>" required>
+                <input type="password" id="passwordNew" name="passwordNew" required>
             </div>
             <div class="formDiv">
                 <label for="passwordRepeat">Repeat new password</label>

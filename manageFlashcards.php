@@ -28,24 +28,18 @@ else if(!isset($_SESSION['deck_id']))
 if(isset($_POST['front_add']))
 {
     $queryError=0;
-    //transakcja
     mysqli_query($conn, "BEGIN;");
-    mysqli_query($conn, "INSERT INTO flashcards_active(front, back, next_revision, last_updated, user_id, deck_id) VALUES ('".$_POST['front_add']."', '".$_POST['back_add']."', CURRENT_DATE, CURRENT_TIMESTAMP, '".$_SESSION['user_id']."', '".$_SESSION['deck_id']."');");
+    mysqli_query($conn, "INSERT INTO flashcards_active(front, back, next_revision, last_updated, deck_id) VALUES ('".$_POST['front_add']."', '".$_POST['back_add']."', CURRENT_DATE, CURRENT_TIMESTAMP, '".$_SESSION['deck_id']."');");
         if(mysqli_affected_rows($conn)!=1) $queryError++;
     mysqli_query($conn, "UPDATE decks SET flashcard_count=flashcard_count+1 WHERE deck_id='".$_SESSION['deck_id']."';");
         if(mysqli_affected_rows($conn)!=1) $queryError++;
-    if($queryError) //wiadomość o niepowodzeniu
+    if($queryError)
         mysqli_query($conn, "ROLLBACK;");
     else
         mysqli_query($conn, "COMMIT;");
 
-    $_GET['add']='a';
     unset($_POST['front_add']);
 }
-
-//ogarnąć, gdzie powinno to być względem transakcji
-$deck_result=mysqli_query($conn, "SELECT * FROM decks WHERE deck_id='".$_SESSION['deck_id']."'");
-$deck_info=mysqli_fetch_array($deck_result);
 
 if(isset($_POST['flash']))
 {
@@ -69,15 +63,17 @@ if(isset($_POST['flashcard_edit']))
     if(!isset($_POST['front_edit'])) $_POST['front_edit']=$_POST['front_default'];
     if(!isset($_POST['back_edit'])) $_POST['back_edit']=$_POST['back_default'];
 
-    mysqli_query($conn, "UPDATE flashcards_active SET front='".$_POST['front_edit']."', back='".$_POST['back_edit']."' WHERE flashcard_id='".$_POST['flashcard_edit']."';");
+    mysqli_query($conn, "UPDATE flashcards_active SET front='".$_POST['front_edit']."', back='".$_POST['back_edit']."', last_updated=CURRENT_TIMESTAMP WHERE flashcard_id='".$_POST['flashcard_edit']."';");
     unset($_POST['flashcard_edit'], $_POST['front_edit'], $_POST['back_edit']);
 }
 
 if(!empty($_POST['query']))
     $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE deck_id='".$_SESSION['deck_id']."' AND (front REGEXP '".$_POST['query']."' OR back REGEXP '".$_POST['query']."');");
 else
-    $flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE deck_id='".$_SESSION['deck_id']."';"); //nazwa tabeli zalezna od opcji
+$flashcards_result=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE deck_id='".$_SESSION['deck_id']."';"); 
 
+$deck_result=mysqli_query($conn, "SELECT * FROM decks WHERE deck_id='".$_SESSION['deck_id']."'");
+$deck_info=mysqli_fetch_array($deck_result);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -97,27 +93,29 @@ else
         ::-webkit-scrollbar-thumb:hover {background: rgb(95, 71, 235);}
         
     </style>
-    <title></title>
+    <title>Manage flashcards</title>
 </head>
 <body>
 <aside>
-    <h1 class="flashAside"><?php echo $deck_info['deck_name']?></h1>
-    <?php
-    if(isset($_GET['add']) && $_GET['add']=='a')
-        echo '<a href="manageFlashcards.php" class="flashAside"><button>Manage flashcards</button></a>';
-    else 
-    {
-        echo '<a href="manageFlashcards.php?add=a" class="flashAside"><button>New flashcard</button></a>';
-        if(!isset($_GET['add']))
+    <div>
+        <h1 class="flashAside"><?php echo $deck_info['deck_name']?></h1>
+        <?php
+        if(isset($_GET['add']) && $_GET['add']=='a')
+            echo '<a href="manageFlashcards.php" class="flashAside"><button>Manage flashcards</button></a>';
+        else 
         {
-            echo '<div class="flashAside">';
-            echo '<a href="manageFlashcards.php"><button>Edit</button></a>';
-            echo '<a href="manageFlashcards.php?delete=a"><button>Delete</button></a>';
-            echo '</div>';
-        }
-    } 
-    ?>
-    <nav style="position: relative; top: 340px; left: 0px;">
+            echo '<a href="manageFlashcards.php?add=a" class="flashAside"><button>New flashcard</button></a>';
+            if(!isset($_GET['add']))
+            {
+                echo '<div class="flashAside">';
+                echo '<a href="manageFlashcards.php"><button>Edit</button></a>';
+                echo '<a href="manageFlashcards.php?delete=a"><button>Delete</button></a>';
+                echo '</div>';
+            }
+        } 
+        ?>
+    </div>
+    <nav>
         <a href="welcome.php">Review flashcards</a>
         <a href="manageDecks.php">Manage decks</a>
         <a href="settings.php">Settings</a>        
@@ -126,11 +124,11 @@ else
 </aside>
 <main>
     <?php
-    if(!empty($_GET['add']))
+    if(isset($_GET['add']) && $_GET['add']=='a')
     {
         ECHO<<<HTML
         <h2>Add new flashcard</h2>
-        <form method="POST" action="manageFlashcards.php">
+        <form method="POST" action="manageFlashcards.php?add=a">
         <div class="formDiv">
             <label for="front">Front</label>
             <textarea id="front" name="front_add" rows="8" cols="75" required></textarea>
@@ -177,7 +175,7 @@ else
         }
         else if(isset($_GET['edit']) && is_numeric($_GET['edit']))
         {            
-            $temp=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE user_id='".$_SESSION['user_id']."' AND flashcard_id='".$_GET['edit']."';");
+            $temp=mysqli_query($conn, "SELECT * FROM flashcards_active WHERE deck_id='".$_SESSION['deck_id']."' AND flashcard_id='".$_GET['edit']."';");
             if($row=mysqli_fetch_array($temp))
             {
                 echo '<form method="POST" action="manageFlashcards.php" id="editFlash">';
@@ -193,9 +191,9 @@ else
                 echo '<label for id="back">Back</label>';
                 echo '<textarea id="back" name="back_edit" rows="8" cols="75">'.$row['back'].'</textarea></div>';
                 echo '<input type="submit" value="Edit"></form>';
-                echo '<a href="manageFlashcards.php"><button>Go back</button></a>';
             }
-                mysqli_free_result($temp);
+            mysqli_free_result($temp);
+            echo '<a href="manageFlashcards.php"><button>Go back</button></a>';
         }
         else 
         {
@@ -210,6 +208,7 @@ else
             echo '</table>';
         }
     }
+    if(!empty($queryError)) echo '<p>Failed to complete the task. Please try again.</p>';
     ?>
 </main>
 </body>

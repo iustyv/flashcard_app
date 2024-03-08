@@ -43,6 +43,12 @@ main {
         font-family: 'DM Sans', sans-serif;
     }
     
+    aside {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    
     .flashAside {
         padding-left: 30px;
     }
@@ -115,6 +121,7 @@ main {
         display:flex;
         flex-direction: column;
         row-gap: 20px;
+        align-items: center;
     }
 
     #flashcard p {

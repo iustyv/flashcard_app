@@ -102,8 +102,20 @@ else if(isset($_SESSION['revision'],$_SESSION['rev_count'],$_SESSION['num_cards'
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
-    <title></title>
+    <style>
+		p a {
+        color: rgb(139, 134, 167);
+        transition-duration: 300ms;
+		}
+
+		p a:hover {
+			color: rgb(95, 71, 235);
+			transition-duration: 300ms;
+		}
+	</style>
+    <title>Review flashcards</title>
 </head>
+<body>
 <nav>
     <a href="welcome.php">Review flashcards</a>
     <a href="manageDecks.php">Manage decks</a>
@@ -113,17 +125,17 @@ else if(isset($_SESSION['revision'],$_SESSION['rev_count'],$_SESSION['num_cards'
 <main>
 	<?php
 	if ($_SESSION['num_cards']==0) {
-		echo '<p>There are no more flashcards to review. Come back tomorrow!</p>';
+		echo '<p>There are no more flashcards to review. Come back tomorrow or <a href="manageFlashcards.php?add=a">add new flashcards</a>!</p>';
 		echo '<a href="welcome.php"><button>Go back</button></a>';
 		unset($_SESSION['num_cards'], $_SESSION['revision'], $_SESSION['rev_count']);
 	}
 	else {
-		echo '<p>'.$_SESSION['revision'][$_SESSION['rev_count']]['front'].'</p>';
-		echo '<button type="button" id="button" onclick="showBack()">Reveal back</button>';
-		echo '<p id="back" style="display:none;">'.$_SESSION['revision'][$_SESSION['rev_count']]['back'].'</p>'; //wyobraź sobie jako tablicę dwuwymiarową wewnątrz wiersza tablicy zmiennych sesyjnych
+		echo '<div id="flashcard"><p>'.$_SESSION['revision'][$_SESSION['rev_count']]['front'].'</p>';
+		echo '<button type="button" id="button" onclick="showBack()" style="width: fit-content;">Reveal back</button>';
+		echo '<p id="back" style="display:none;">'.$_SESSION['revision'][$_SESSION['rev_count']]['back'].'</p></div>';
 
 		ECHO <<< HTML
-		<form action="reviewFlashcards.php?review=y" method="POST">
+		<form action="reviewFlashcards.php?review=y" method="POST" id="reviewForm">
 			<input type="submit" value="&#10004;"> <!--przycisk "pamiętam"-->
 			<input type="submit" value="&#10006;" formaction="reviewFlashcards.php?review=n"> <!--przycisk "nie pamiętam"-->
 		</form>

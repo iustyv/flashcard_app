@@ -23,7 +23,7 @@ if(isset($_POST['deck_delete']))
     $row=mysqli_fetch_array($temp);
     mysqli_query($conn, "BEGIN;");
     mysqli_query($conn, "DELETE FROM flashcards_active WHERE deck_id='".$_POST['deck_delete']."';");  
-        if(mysqli_affected_rows($conn)!=$row['flashcard_count']) $queryError; 
+        if(mysqli_affected_rows($conn)!=$row['flashcard_count']) $queryError++; 
     mysqli_query($conn, "DELETE FROM decks WHERE deck_id='".$_POST['deck_delete']."';");
         if(mysqli_affected_rows($conn)!=1) $queryError++;
     if($queryError)
@@ -69,7 +69,7 @@ $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['use
         }
 
     </style>
-    <title></title>
+    <title>Manage decks</title>
 </head>
 <body>
 <nav>
@@ -134,6 +134,7 @@ $result=mysqli_query($conn, "SELECT * FROM decks WHERE user_id='".$_SESSION['use
 
         ?> 
     </table>
+    <?php if(!empty($queryError)) echo '<p>Failed to delete deck. Please try again.</p>'; ?>
 </main>
 </body>
 </html>

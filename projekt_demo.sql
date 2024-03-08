@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS flashcards_active;
 CREATE TABLE user_data(
     user_id int AUTO_INCREMENT PRIMARY KEY,
     username varbinary(40) UNIQUE NOT NULL,
-    password varbinary(40) NOT NULL
+    password varbinary(255) NOT NULL
 );
 
 CREATE TABLE decks(
